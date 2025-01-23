@@ -1,0 +1,249 @@
+/**
+ * An prototype app for the TM352 24J TMA02 senario. 
+ * 
+ * Please read the TMA question carefully to understand the requirements of the app. The app as provided 
+ * implements the basic functionality required for the TMA. You will need to add additional functionality.
+ * To demonstrate how to handle images, the app includes code to use the camera to take a photo and submit 
+ * it to the service. To complete the TMA you will need to add code to implement the ability to upload photos
+ * that have been previously taken.
+ * 
+ * To install:
+ * npm ci
+ * cd web
+ * npm ci
+ *
+ * This app can be started from the web directory with:
+ * npm run dev
+ * 
+ * Libraries used:
+ * npx expo install expo-camera
+ * 
+ * Limitations/assumptions:
+ * Autumn Thomson: The photo handling will work correctly on React Native web, but will not work on mobile platforms.
+ * This is suitable for the EMA, but would need to be fixed for a real app.
+ * Autumn Thomson: This only works on SDK49. The camera does not work on SDK50 and higher as configured.
+ * 
+ * Please add your own!
+ *
+ * Change log:
+ * Version 1.0, 18 January 2024, A Thomson, Intial version
+ * Version 1.1, 27 February 2024, A Thomson, Updated following feedback
+ * Version 1.2, 25 September 2024, A Thomson, revised for 24J TMA02. Many small changes for the 
+ *            TMA, including the senario, and image uri handling. Tweaks made to ensure that
+ *            no errors are shown with typescript.
+ * 
+ * Testing completed:
+ * 27/02/2024: Autumn Thomson, Initial testing using the web platform on the VCL.
+ *             This code was used as a base and the solution code was added. It was 
+ *             confirmed that the EMA requirements were met.
+ * 25/09/2024: Autumn Thomson, Retested the code to ensure it works with the TMA requirements.
+ */
+
+import React from 'react';
+import {StyleSheet, Button, Text, SafeAreaView, TextInput, View, Dimensions} from 'react-native';
+import {Camera, CameraType } from 'expo-camera';
+import {Photo, getPhotos, addPhoto, registerUser} from './libraries/PhotoService';
+import PhotoEditor from './components/PhotoEditor';
+import ScaledImage from './components/ScaledImage';
+import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
+
+
+const App = () => {
+  const [photos, setPhotos] = React.useState<Array<Photo>>([]);
+  const [user, setUser] = React.useState("");
+  const [cameraAction, setCameraAction] = React.useState<string>("Start Camera");
+  const [photo, setPhoto] = React.useState("");
+  const [camera, setCamera] = React.useState<Camera|null>(null);
+  const [cameraStarted, setCameraStarted] = React.useState<boolean>(false);
+
+  // Function to open the image library and select a photo
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPhoto(result.assets[0].uri); // Save the image URI for display
+      console.log('Selected Image:', result.assets[0].uri);
+    }
+  };
+
+  // Get the photos from the service when the button is pressed
+  const updatePhotos = async () => {
+    const p = await getPhotos(user);
+    console.log(p);
+    setPhotos(p);
+  }
+
+  // Register a user on the service when the button is pressed
+  const register = async () => {
+    if (user == "") {
+      console.log("No user name entered");
+      return;
+    }
+    const result = await registerUser(user);
+    console.log(result);
+    alert("User registered");
+  }
+  
+  //Image handling for the camera
+  //Start the camera to take a photo
+  const startCamera = async function() {
+    const {status} = await Camera.requestCameraPermissionsAsync();
+    if (status === 'granted') {
+      setCameraStarted(true);
+      setCameraAction("Take Photo");
+    } else {
+      alert('Access denied');
+    }
+  }
+
+  //Take a photo
+  const takePicture = async function() {
+    if (!camera) return;
+    // p.uri is a uri of the photo
+    const p = await camera.takePictureAsync();
+    // Assign photo to the ScaledImage
+    setPhoto(p.uri);
+    setCameraStarted(false);
+    setCameraAction("Start Camera");
+  }
+
+  //Change what the camera button does depending on the state
+  const cameraButton = function(){
+    if (cameraStarted){
+      takePicture();
+    }
+    else {
+      startCamera();
+    }
+  }
+
+  // Submit an report when the button is pressed
+  const submitReport = async () => {
+    if (photo == null) {
+      console.log("No image taken");
+      return;
+    }
+    if (user == "") {
+      console.log("No user name entered");
+      return;
+    }
+
+    if (photo != null) {
+      // Add code to obtain an address from the user, and turn it into a latitute and longitude.
+      // Do something sensible if no location is provided.
+      const latlong = [{lat: 53.99, lon: -1.08}];
+
+      if (latlong.length > 0){
+        const lat = latlong[0].lat;
+        const lon = latlong[0].lon;
+
+        // Check the location is in the competition area
+
+        // The following line defines the area of operations for the
+        // YPC. The area is defined by a bounding box of latitudes and
+        // longitudes. 
+        if (lat < 53.9 || lat > 54.0 || lon < -1.1 || lon > -1.0) {
+          // Add code to do something
+        }
+
+        // The latitude and longitude boundaries are defined roughly for the 
+        // modern city of York, England. So to test locations, please pick them within
+        // York. A good example of an address is "York Minster, York, England".
+
+        // Please keep these boundaries as we will use them during marking, they are not 
+        // necessarily the correct boundaries for the city of York.
+      }
+
+      addPhoto(user, photo, "Test address").then((entry) => {
+        console.log(entry);
+      })
+   }
+  }
+      
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.text}>Yorvik Parking Company: Issue Reporting</Text>
+      
+      
+      <Text style={styles.text}>Please enter your name</Text>
+      <TextInput
+        style={styles.textInput}
+        onChangeText={setUser}
+        value={user} />
+      <Button title="Register name" onPress={register} />
+      
+      
+      <Text style={styles.text}>Please take a photo</Text>
+      {cameraStarted ? (
+        <Camera
+          style={styles.camera}
+          type={CameraType.back}
+          ref={(r: Camera | null) => {
+            setCamera(r);
+          }}
+        ></Camera>
+      ) : (<ScaledImage uri={photo || ''} width={Dimensions.get('window').width}/>)}
+
+      <Button title="Upload from Library" onPress={pickImage} />
+      <Button title={cameraAction} onPress={cameraButton} />
+      <Button title="Submit report" onPress={submitReport} />
+      <Button title="View reports" onPress={updatePhotos} />
+      
+      
+      <Text style={styles.text}>Reports</Text>
+      {photos.map((photo: Photo, index: number) => (
+        <View key={index}>
+          <PhotoEditor photo={photo} user={user}/>
+        </View>
+      ))}
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  imagecontainer: {
+    flex: 1,
+    minHeight: 200,
+  },
+  camera: {
+    flex: 1,
+    minHeight: 200,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    margin: 64,
+  },
+  button: {
+    flex: 1,
+    alignSelf: 'flex-end',
+    alignItems: 'center',
+  },
+  text: {
+    fontWeight: 'bold',
+  },
+  textInput: {
+    fontSize: 20,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: 'black',
+  },
+  input: {
+    width: 200,
+    height: 40,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'black',
+  },
+});
+
+export default App;
