@@ -42,7 +42,7 @@
 import React from 'react';
 import {StyleSheet, Button, Text, SafeAreaView, TextInput, View, Dimensions} from 'react-native';
 import {Camera, CameraType } from 'expo-camera';
-import {Photo, getPhotos, addPhoto, registerUser} from './libraries/PhotoService';
+import {Photo, getPhotos, addPhoto, registerUser, addComment} from './libraries/PhotoService';
 import PhotoEditor from './components/PhotoEditor';
 import ScaledImage from './components/ScaledImage';
 import * as ImagePicker from 'expo-image-picker';
@@ -57,6 +57,8 @@ const App = () => {
   const [camera, setCamera] = React.useState<Camera|null>(null);
   const [cameraStarted, setCameraStarted] = React.useState<boolean>(false);
   const [address, setAddress] = React.useState("");
+  const [comment, setComment] = React.useState("");
+
 
   // Function to open the image library and select a photo
   const pickImage = async () => {
@@ -198,6 +200,47 @@ const App = () => {
           onChangeText={setAddress}
           value={address}
       />
+
+      <Text style={styles.text}>Reports</Text>
+      {photos.map((photo: Photo, index: number) => (
+          <View key={index} style={{ marginBottom: 20 }}>
+            <PhotoEditor photo={photo} user={user} />
+            <Text style={styles.text}>Location: {photo.location}</Text>
+            <ScaledImage uri={photo.uri} width={Dimensions.get('window').width} />
+
+            <Text style={styles.text}>Comments:</Text>
+            {photo.comments.length > 0 ? (
+                photo.comments.map((c, i) => (
+                    <Text key={i} style={styles.comment}>
+                      {c}
+                    </Text>
+                ))
+            ) : (
+                <Text>No comments yet.</Text>
+            )}
+
+            <TextInput
+                style={styles.textInput}
+                placeholder="Add a comment"
+                value={comment}
+                onChangeText={setComment}
+            />
+            <Button
+                title="Submit Comment"
+                onPress={async () => {
+                  try {
+                    await addComment(user, photo.id, comment);
+                    alert("Comment added successfully!");
+                    setComment(""); // Clear the input
+                    updatePhotos(); // Refresh to fetch updated comments
+                  } catch (error) {
+                    console.error("Error adding comment:", error);
+                    alert("Failed to add the comment. Please try again.");
+                  }
+                }}
+            />
+          </View>
+      ))}
 
       <Button title="Submit report" onPress={submitReport} />
       <Button title="View reports" onPress={updatePhotos} />
