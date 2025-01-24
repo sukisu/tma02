@@ -237,7 +237,7 @@ const App = () => {
                     await addComment(user, photo.id, comment);
                     alert("Comment added successfully!");
                     setComment(""); // Clear the input
-                    updatePhotos(); // Refresh to fetch updated comments
+                    await updatePhotos(); // Refresh to fetch updated comments
                   } catch (error) {
                     console.error("Error adding comment:", error);
                     alert("Failed to add the comment. Please try again.");

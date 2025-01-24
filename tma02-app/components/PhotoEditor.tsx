@@ -35,7 +35,7 @@ export default function PhotoEditor(props: PhotoEditorProps) {
     return (
         <View style={styles.container}>
             <ScaledImage uri={props.photo.uri} width={Dimensions.get('window').width}/>
-            <Text style={styles.text}>{props.photo.location} by {props.photo.user} (FIX ME votes recived)</Text>
+            <Text style={styles.text}>{props.photo.location} by {props.photo.user} by {props.photo.votes}</Text>
             {props.photo.comments.map((comment, index) => (
                 <Text style={styles.text} key={index}>{comment}</Text>
             ))}
