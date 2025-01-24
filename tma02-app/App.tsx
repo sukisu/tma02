@@ -42,11 +42,12 @@
 import React from 'react';
 import {StyleSheet, Button, Text, SafeAreaView, TextInput, View, Dimensions} from 'react-native';
 import {Camera, CameraType } from 'expo-camera';
-import {Photo, getPhotos, addPhoto, registerUser, addComment} from './libraries/PhotoService';
+import {Photo, getPhotos, addPhoto, registerUser, addComment, addVote} from './libraries/PhotoService';
 import PhotoEditor from './components/PhotoEditor';
 import ScaledImage from './components/ScaledImage';
 import * as ImagePicker from 'expo-image-picker';
 import {getAddressLocation} from "./libraries/NominatimService"; // Import ImagePicker
+
 
 
 const App = () => {
@@ -208,6 +209,21 @@ const App = () => {
             <Text style={styles.text}>Location: {photo.location}</Text>
             <ScaledImage uri={photo.uri} width={Dimensions.get('window').width} />
 
+            <Text style={styles.text}>Votes: {photo.votes}</Text>
+            <Button
+                title="Vote"
+                onPress={async () => {
+                  try {
+                    await addVote(user, photo.id); // Increment votes
+                    alert("Voted successfully!");
+                    updatePhotos(); // Refresh to show updated vote count
+                  } catch (error) {
+                    console.error("Error voting:", error);
+                    alert("Failed to vote. Please try again.");
+                  }
+                }}
+            />
+
             <Text style={styles.text}>Comments:</Text>
             {photo.comments.length > 0 ? (
                 photo.comments.map((c, i) => (
@@ -244,8 +260,7 @@ const App = () => {
 
       <Button title="Submit report" onPress={submitReport} />
       <Button title="View reports" onPress={updatePhotos} />
-      
-      
+
       <Text style={styles.text}>Reports</Text>
       {photos.map((photo: Photo, index: number) => (
         <View key={index}>
@@ -253,6 +268,8 @@ const App = () => {
         </View>
       ))}
     </SafeAreaView>
+
+
   );
 };
 
