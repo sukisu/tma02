@@ -211,9 +211,8 @@ const App = () => {
       <Text style={styles.text}>Reports</Text>
       {photos.map((photo: Photo, index: number) => (
           <View key={index}>
-            <PhotoEditor photo={photo} user={user} />
-            <ScaledImage uri={photo.uri} width={Dimensions.get('window').width} />
-
+            {/*<PhotoEditor photo={photo} user={user} />*/}
+            {/*<ScaledImage uri={photo.uri} width={Dimensions.get('window').width} />*/}
             <Text style={styles.text}>Comments:</Text>
             {photo.comments.length > 0 ? (
                 photo.comments.map((c, i) => (
