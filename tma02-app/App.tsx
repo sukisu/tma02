@@ -211,7 +211,6 @@ const App = () => {
       {photos.map((photo: Photo, index: number) => (
           <View key={index} style={{ marginBottom: 20 }}>
             <PhotoEditor photo={photo} user={user} />
-            <Text style={styles.text}>Location: {photo.location}</Text>
             <ScaledImage uri={photo.uri} width={Dimensions.get('window').width} />
 
             {/*<Text style={styles.text}>Votes: {photo.votes}</Text>*/}
