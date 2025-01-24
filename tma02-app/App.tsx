@@ -60,8 +60,6 @@ const App = () => {
   const [cameraStarted, setCameraStarted] = React.useState<boolean>(false);
   const [address, setAddress] = React.useState("");
   const [comment, setComment] = React.useState("");
-  const [vote, setVote] = React.useState("");
-
 
   // Function to open the image library and select a photo
   const pickImage = async () => {
