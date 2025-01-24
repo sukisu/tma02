@@ -208,7 +208,6 @@ const App = () => {
       <Button title="View reports" onPress={updatePhotos} />
 
       <Text style={styles.text}>Reports</Text>
-      <Text style={styles.text}>Reports</Text>
       {photos.map((photo: Photo, index: number) => (
           <View key={index} style={{ marginBottom: 20 }}>
             <PhotoEditor photo={photo} user={user} />
