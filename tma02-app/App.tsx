@@ -45,10 +45,9 @@ import {Camera, CameraType } from 'expo-camera';
 import {Photo, getPhotos, addPhoto, registerUser, addComment, addVote} from './libraries/PhotoService';
 import PhotoEditor from './components/PhotoEditor';
 import ScaledImage from './components/ScaledImage';
+// Question 1 -importing ImagePicker Library
 import * as ImagePicker from 'expo-image-picker';
 import {getAddressLocation} from "./libraries/NominatimService"; // Import ImagePicker
-
-
 
 
 const App = () => {
@@ -58,13 +57,15 @@ const App = () => {
   const [photo, setPhoto] = React.useState("");
   const [camera, setCamera] = React.useState<Camera|null>(null);
   const [cameraStarted, setCameraStarted] = React.useState<boolean>(false);
+  // Question 2 - Variable declaration for address and setter.
   const [address, setAddress] = React.useState("");
+  // Question 3 - Variable declaration for comment and setter.
   const [comment, setComment] = React.useState("");
 
-  // Upload image from users library when button is pressed.
+  // Question 1 - Upload image from users library when button is pressed.
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      // Allowing only images
+      // Media type only for images, preventing video uploads.
       mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
@@ -128,6 +129,7 @@ const App = () => {
   }
 
   // Submit an report when the button is pressed
+  // Question 2 - Amending Function for address validation.
   const submitReport = async () => {
     if (!photo) {
       console.log("No image taken");
@@ -144,22 +146,23 @@ const App = () => {
     }
 
     try {
-      // Get latitude and longitude from the address
+      // Gather Latitude and Longitude of current address
       const result = await getAddressLocation(address);
 
+      // If there is no result then the address is invalid.
       if (!result || result.length === 0) {
         alert("Address could not be found. Please try again.");
         return;
       }
 
-      const {lat, lon} = result[0]; // Extract the first result
+      // Taking the lat and lon for use in conditional before.
+      const {lat, lon} = result[0];
 
-      // Validate coordinates against the operational area
+      // Validate coordinates against the area
       if (lat < 53.9 || lat > 54.0 || lon < -1.1 || lon > -1.0) {
         alert("The address is outside the operational area.");
         return;
       }
-
       // Submit the photo and location
       await addPhoto(user, photo, address);
       alert("Report submitted successfully.");
@@ -198,6 +201,7 @@ const App = () => {
 
       <Button title={cameraAction} onPress={cameraButton} />
 
+      {/*Text bar to add address*/}
       <Text style={styles.text}>Please enter the address</Text>
       <TextInput
           style={styles.textInput}
@@ -213,12 +217,14 @@ const App = () => {
       {photos.map((photo: Photo, index: number) => (
           <View key={index}>
             <PhotoEditor photo={photo} user={user} />
+            {/*Question 3 - Adding text input with a setComment*/}
             <TextInput
                 style={styles.textInput}
                 placeholder="Add a comment"
                 value={comment}
                 onChangeText={setComment}
             />
+            {/*Question 3 - Adding button that calls addComment */}
             <Button
                 title="Submit Comment"
                 onPress={async () => {
