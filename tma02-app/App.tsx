@@ -61,16 +61,17 @@ const App = () => {
   const [address, setAddress] = React.useState("");
   const [comment, setComment] = React.useState("");
 
-  // Function to open the image library and select a photo
+  // Upload image from users library when button is pressed.
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      // Allowing only images
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
-      setPhoto(result.assets[0].uri); // Save the image URI for display
+      setPhoto(result.assets[0].uri); // Setting the image for use in Submit Report
       console.log('Selected Image:', result.assets[0].uri);
     }
   };
@@ -192,7 +193,9 @@ const App = () => {
         ></Camera>
       ) :  photo && <ScaledImage uri={photo} width={Dimensions.get('window').width}/>}
 
+      {/*Adding a button to allow upload from library*/}
       <Button title="Upload from Library" onPress={pickImage} />
+
       <Button title={cameraAction} onPress={cameraButton} />
 
       <Text style={styles.text}>Please enter the address</Text>
