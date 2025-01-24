@@ -210,17 +210,6 @@ const App = () => {
       {photos.map((photo: Photo, index: number) => (
           <View key={index}>
             <PhotoEditor photo={photo} user={user} />
-            <Text style={styles.text}>Comments:</Text>
-            {photo.comments.length > 0 ? (
-                photo.comments.map((c, i) => (
-                    <Text key={i} style={styles.comment}>
-                      {c}
-                    </Text>
-                ))
-            ) : (
-                <Text>No comments yet.</Text>
-            )}
-
             <TextInput
                 style={styles.textInput}
                 placeholder="Add a comment"
