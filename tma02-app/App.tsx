@@ -81,6 +81,7 @@ const App = () => {
     const p = await getPhotos(user);
     console.log(p);
     setPhotos(p);
+    setVote(p.votes);
   }
 
   // Register a user on the service when the button is pressed
