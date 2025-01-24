@@ -209,7 +209,7 @@ const App = () => {
 
       <Text style={styles.text}>Reports</Text>
       {photos.map((photo: Photo, index: number) => (
-          <View key={index} style={{ marginBottom: 20 }}>
+          <View key={index}>
             <PhotoEditor photo={photo} user={user} />
             <ScaledImage uri={photo.uri} width={Dimensions.get('window').width} />
 
