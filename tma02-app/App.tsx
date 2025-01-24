@@ -191,6 +191,14 @@ const App = () => {
 
       <Button title="Upload from Library" onPress={pickImage} />
       <Button title={cameraAction} onPress={cameraButton} />
+
+      <Text style={styles.text}>Please enter the address</Text>
+      <TextInput
+          style={styles.textInput}
+          onChangeText={setAddress}
+          value={address}
+      />
+
       <Button title="Submit report" onPress={submitReport} />
       <Button title="View reports" onPress={updatePhotos} />
       
