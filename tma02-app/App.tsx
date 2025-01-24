@@ -209,14 +209,14 @@ const App = () => {
             <Text style={styles.text}>Location: {photo.location}</Text>
             <ScaledImage uri={photo.uri} width={Dimensions.get('window').width} />
 
-            <Text style={styles.text}>Votes: {photo.votes}</Text>
+            {/*<Text style={styles.text}>Votes: {photo.votes}</Text>*/}
             <Button
                 title="Vote"
                 onPress={async () => {
                   try {
                     await addVote(user, photo.id); // Increment votes
                     alert("Voted successfully!");
-                    updatePhotos(); // Refresh to show updated vote count
+                    await updatePhotos(); // Refresh to show updated vote count
                   } catch (error) {
                     console.error("Error voting:", error);
                     alert("Failed to vote. Please try again.");
