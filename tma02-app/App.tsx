@@ -45,7 +45,8 @@ import {Camera, CameraType } from 'expo-camera';
 import {Photo, getPhotos, addPhoto, registerUser} from './libraries/PhotoService';
 import PhotoEditor from './components/PhotoEditor';
 import ScaledImage from './components/ScaledImage';
-import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
+import * as ImagePicker from 'expo-image-picker';
+import {getAddressLocation} from "./libraries/NominatimService"; // Import ImagePicker
 
 
 const App = () => {
@@ -55,6 +56,7 @@ const App = () => {
   const [photo, setPhoto] = React.useState("");
   const [camera, setCamera] = React.useState<Camera|null>(null);
   const [cameraStarted, setCameraStarted] = React.useState<boolean>(false);
+  const [address, setAddress] = React.useState("");
 
   // Function to open the image library and select a photo
   const pickImage = async () => {
@@ -123,46 +125,45 @@ const App = () => {
 
   // Submit an report when the button is pressed
   const submitReport = async () => {
-    if (photo == null) {
+    if (!photo) {
       console.log("No image taken");
       return;
     }
-    if (user == "") {
+    if (!user) {
       console.log("No user name entered");
       return;
     }
+    if (!address) {
+      console.log("No address entered");
+      alert("Please enter an address.");
+      return;
+    }
 
-    if (photo != null) {
-      // Add code to obtain an address from the user, and turn it into a latitute and longitude.
-      // Do something sensible if no location is provided.
-      const latlong = [{lat: 53.99, lon: -1.08}];
+    try {
+      // Get latitude and longitude from the address
+      const result = await getAddressLocation(address);
 
-      if (latlong.length > 0){
-        const lat = latlong[0].lat;
-        const lon = latlong[0].lon;
-
-        // Check the location is in the competition area
-
-        // The following line defines the area of operations for the
-        // YPC. The area is defined by a bounding box of latitudes and
-        // longitudes. 
-        if (lat < 53.9 || lat > 54.0 || lon < -1.1 || lon > -1.0) {
-          // Add code to do something
-        }
-
-        // The latitude and longitude boundaries are defined roughly for the 
-        // modern city of York, England. So to test locations, please pick them within
-        // York. A good example of an address is "York Minster, York, England".
-
-        // Please keep these boundaries as we will use them during marking, they are not 
-        // necessarily the correct boundaries for the city of York.
+      if (!result || result.length === 0) {
+        alert("Address could not be found. Please try again.");
+        return;
       }
 
-      addPhoto(user, photo, "Test address").then((entry) => {
-        console.log(entry);
-      })
-   }
-  }
+      const {lat, lon} = result[0]; // Extract the first result
+
+      // Validate coordinates against the operational area
+      if (lat < 53.9 || lat > 54.0 || lon < -1.1 || lon > -1.0) {
+        alert("The address is outside the operational area.");
+        return;
+      }
+
+      // Submit the photo and location
+      await addPhoto(user, photo, address);
+      alert("Report submitted successfully.");
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("An error occurred while validating the address.");
+    }
+  };
       
   return (
     <SafeAreaView style={styles.container}>
