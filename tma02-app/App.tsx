@@ -213,32 +213,6 @@ const App = () => {
             <PhotoEditor photo={photo} user={user} />
             <ScaledImage uri={photo.uri} width={Dimensions.get('window').width} />
 
-            {/*<Text style={styles.text}>Votes: {photo.votes}</Text>*/}
-            <Text style={styles.text}>Votes: {photo.votes}</Text>
-            <Button
-                title="Vote"
-                onPress={async () => {
-                  try {
-                    await addVote(user, photo.id); // Increment votes on the backend
-                    alert("Voted successfully!");
-
-                    // Update the local vote count by recreating Photo instances
-                    setPhotos(prevPhotos =>
-                        prevPhotos.map(p =>
-                            p.id === photo.id
-                                ? new Photo(p.user, p.id, p.location, p.uri, p.votes + 1, p.comments)
-                                : p
-                        )
-                    );
-
-                    await updatePhotos(); // Refresh the photos to get the updated vote count from the backend
-                  } catch (error) {
-                    console.error("Error voting:", error);
-                    alert("Failed to vote. Please try again.");
-                  }
-                }}
-            />
-
             <Text style={styles.text}>Comments:</Text>
             {photo.comments.length > 0 ? (
                 photo.comments.map((c, i) => (
