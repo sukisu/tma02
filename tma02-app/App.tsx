@@ -50,6 +50,7 @@ import {getAddressLocation} from "./libraries/NominatimService"; // Import Image
 
 
 
+
 const App = () => {
   const [photos, setPhotos] = React.useState<Array<Photo>>([]);
   const [user, setUser] = React.useState("");
@@ -184,19 +185,14 @@ const App = () => {
       
       <Text style={styles.text}>Please take a photo</Text>
       {cameraStarted ? (
-          <Camera
-              style={styles.camera}
-              type={CameraType.back}
-              ref={(r: Camera | null) => {
-                setCamera(r);
-              }}
-          ></Camera>
-      ) : (
-          // Only render the image if it's not null or empty
-          photo ? (
-              <ScaledImage uri={photo} width={Dimensions.get('window').width} />
-          ) : null // Don't render anything if no photo exists
-      )}
+        <Camera
+          style={styles.camera}
+          type={CameraType.back}
+          ref={(r: Camera | null) => {
+            setCamera(r);
+          }}
+        ></Camera>
+      ) :  photo && <ScaledImage uri={photo} width={Dimensions.get('window').width}/>}
 
       <Button title="Upload from Library" onPress={pickImage} />
       <Button title={cameraAction} onPress={cameraButton} />
@@ -252,8 +248,6 @@ const App = () => {
           </View>
       ))}
     </SafeAreaView>
-
-
   );
 };
 
